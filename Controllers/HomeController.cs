@@ -5,7 +5,7 @@ using System.Data;
 using System.Diagnostics;
 
 namespace CustomIdentityApp.Controllers {
-    [Authorize(Roles = "user")]
+
     public class HomeController : Controller {
         private readonly ILogger<HomeController> _logger;
 
