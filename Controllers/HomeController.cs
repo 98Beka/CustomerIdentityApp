@@ -21,6 +21,11 @@ namespace CustomIdentityApp.Controllers {
             return View();
         }
 
+        [Authorize(Roles = "admin")]
+        public IActionResult About() {
+            return Content("you are admin");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
