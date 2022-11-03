@@ -25,6 +25,7 @@ namespace CustomIdentityApp.Controllers {
                 if (result.Succeeded) {
                     // установка куки
                     await _signInManager.SignInAsync(user, false);
+                    await _userManager.AddToRoleAsync(user, "user");
                     return RedirectToAction("Index", "Home");
                 } else {
                     foreach (var error in result.Errors) {
@@ -36,14 +37,13 @@ namespace CustomIdentityApp.Controllers {
         }
 
         [HttpGet]
-        public IActionResult Login(string returnUrl = null) {
-            return View(new LoginViewModel { ReturnUrl = returnUrl });
+        public IActionResult Login() {
+            return View(new LoginViewModel { ReturnUrl = "" });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model) {
-            if (ModelState.IsValid) {
                 var result =
                     await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded) {
@@ -56,7 +56,6 @@ namespace CustomIdentityApp.Controllers {
                 } else {
                     ModelState.AddModelError("", "Неправильный логин и (или) пароль");
                 }
-            }
             return View(model);
         }
 
@@ -65,6 +64,26 @@ namespace CustomIdentityApp.Controllers {
         public async Task<IActionResult> Logout() {
             // удаляем аутентификационные куки
             await _signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Account");
+        }
+
+        public async Task<IActionResult> AccessDenied() {
+            User user = await _userManager.FindByEmailAsync(this.User.Identity.Name);
+            return View(await _userManager.GetRolesAsync(user));
+        }
+
+
+        public async Task<IActionResult> AddToAdmins() {
+            User user = await _userManager.FindByEmailAsync(this.User.Identity.Name) ;
+
+            await _userManager.AddToRoleAsync(user, "admin");
+            return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> RemoveFromAdmins() {
+            User user = await _userManager.FindByEmailAsync(this.User.Identity.Name);
+
+            await _userManager.RemoveFromRoleAsync(user, "admin");
             return RedirectToAction("Index", "Home");
         }
     }

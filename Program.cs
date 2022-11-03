@@ -1,8 +1,11 @@
 ﻿using CustomIdentityApp.Data;
 using CustomIdentityApp.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationContext>(options =>
@@ -17,10 +20,27 @@ builder.Services.AddIdentity<User, IdentityRole>( opt => {
 })
     .AddEntityFrameworkStores<ApplicationContext>();
 
+builder.Services.ConfigureApplicationCookie(options => {
+    // Cookie settings
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.SlidingExpiration = true;
+});
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var serviceScope = app.Services.CreateScope()) {
+    var services = serviceScope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    var rolesManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleInitializer.InitializeAsync(userManager, rolesManager);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) {
@@ -42,3 +62,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+ 

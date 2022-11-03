@@ -8,5 +8,6 @@ namespace CustomIdentityApp.Data {
             : base(options) {
             Database.EnsureCreated();
         }
+
     }
 }

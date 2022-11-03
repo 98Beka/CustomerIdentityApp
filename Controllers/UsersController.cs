@@ -1,5 +1,6 @@
 ﻿using CustomIdentityApp.Models;
 using CustomIdentityApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,7 @@ namespace CustomIdentityApp.Controllers {
                 User user = new User { Email = model.Email, UserName = model.Email, Year = model.Year };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded) {
+                    await _userManager.AddToRoleAsync(user, "user");
                     return RedirectToAction("Index");
                 } else {
                     foreach (var error in result.Errors) {

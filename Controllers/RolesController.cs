@@ -14,6 +14,7 @@ namespace CustomIdentityApp.Controllers {
         public IActionResult Index() => View(_roleManager.Roles.ToList());
 
         public IActionResult Create() => View();
+
         [HttpPost]
         public async Task<IActionResult> Create(string name) {
             if (!string.IsNullOrEmpty(name)) {
@@ -58,6 +59,7 @@ namespace CustomIdentityApp.Controllers {
 
             return NotFound();
         }
+
         [HttpPost]
         public async Task<IActionResult> Edit(string userId, List<string> roles) {
             // получаем пользователя
